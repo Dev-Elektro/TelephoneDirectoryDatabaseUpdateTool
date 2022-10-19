@@ -1,0 +1,16 @@
+[Unit]
+Description=Telephone Directory Database Update Tool
+After=network.target
+After=mysql.service
+Requires=mysql.service
+
+[Service]
+User=user
+Group=user
+Type=simple
+WorkingDirectory=/opt/TelephoneDirectoryDatabaseUpdateTool
+ExecStart=/opt/TelephoneDirectoryDatabaseUpdateTool/venv/bin/python main.py deamon
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

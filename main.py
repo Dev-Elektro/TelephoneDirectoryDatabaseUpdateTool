@@ -20,10 +20,10 @@ def updateDataBase(info: bool = False) -> int:
         res = ad.connect()
         logger.debug(f"Подключение к Active Directory: {res}")
 
-        # for i in ad.getAllData(sleep_sec=1):
-        #     if info:
-        #         logger.info(f"Запись из AD № {ad.count}: {i}")
-        #     insertOrUpdate(session, i)
+        for i in ad.getAllData(sleep_sec=1):
+            if info:
+                logger.info(f"Запись из AD № {ad.count}: {i}")
+            insertOrUpdate(session, i)
 
         logger.debug(f"Обновление версий ОС.")
         for name in getAllPCList(session):

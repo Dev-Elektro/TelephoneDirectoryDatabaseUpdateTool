@@ -1,5 +1,6 @@
 import time
 from datetime import datetime
+from typing import Iterable
 
 import pytz as pytz
 from ldap3 import Server, Connection, SIMPLE, SYNC, ASYNC, SUBTREE, ALL
@@ -40,7 +41,16 @@ class ActiveDirectory:
         self.conn = Connection(server, user=self.user, password=self.password)
         return self.conn.bind()
 
-    def getAllData(self, sleep_sec: float = 0) -> SearchResult:
+    def getComputerVersion(self, name: str):
+        attributes = ['cn', 'operatingSystem', 'operatingSystemVersion']
+        query = f'(&(objectClass=user)(cn={name}))'
+        if self.conn.search(self.search_tree, query, SUBTREE, attributes=attributes):
+            if len(self.conn.response) > 3:
+                entry = self.conn.response[0].get("attributes")
+                return True, f"{entry.get('operatingSystem')}: {entry.get('operatingSystemVersion')}"
+        return False, ''
+
+    def getAllData(self, sleep_sec: float = 0) -> Iterable[SearchResult]:
         abc = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя'
         attributes = ['cn', 'mail', 'sAMAccountName', 'pager', 'info', 'objectSid',
                       'physicalDeliveryOfficeName', 'mobile', 'company', 'department', 'title',

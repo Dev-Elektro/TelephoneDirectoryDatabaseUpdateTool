@@ -85,6 +85,8 @@ class ComputerList(Base):
     id_people = Column(Integer, ForeignKey("people.id", ondelete="CASCADE", onupdate="CASCADE"))
     pc_name = Column(String(255))
     when_changed = Column(DateTime)
+    in_domain = Column(Integer)
+    version_os = Column(String(255))
 
     def __repr__(self):
         return f"<ComputerList: id={self.id}, id_people={self.id_people}, pc_name={self.pc_name}>"

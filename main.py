@@ -5,7 +5,7 @@ from environs import EnvError
 from loguru import logger
 from active_directory import ActiveDirectory
 from config import loadConfig
-from database import createDataBaseSession, insertOrUpdate
+from database import createDataBaseSession, insertOrUpdate, getAllPCList, updateVersionPC
 from models import datetimeNow
 
 
@@ -20,10 +20,16 @@ def updateDataBase(info: bool = False) -> int:
         res = ad.connect()
         logger.debug(f"Подключение к Active Directory: {res}")
 
-        for i in ad.getAllData(sleep_sec=1):
-            if info:
-                logger.info(f"Запись из AD № {ad.count}: {i}")
-            insertOrUpdate(session, i)
+        # for i in ad.getAllData(sleep_sec=1):
+        #     if info:
+        #         logger.info(f"Запись из AD № {ad.count}: {i}")
+        #     insertOrUpdate(session, i)
+
+        logger.debug(f"Обновление версий ОС.")
+        for name in getAllPCList(session):
+            in_domain, version = ad.getComputerVersion(name)
+            updateVersionPC(session, name, in_domain, version)
+
         return ad.count
 
 

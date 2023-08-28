@@ -35,6 +35,31 @@ def shortName(name: str) -> str:
     return short_name
 
 
+def getAllPCList(session: Session) -> List[str]:
+    list_names = []
+    raw = select(ComputerList)
+    for i in session.execute(raw).fetchall():
+        pc_name = i[0].pc_name
+        if not pc_name:
+            continue
+        name = pc_name.split(' - ')[0]
+        if name not in list_names:
+            list_names.append(name)
+    return list_names
+
+
+def updateVersionPC(session: Session, name: str, in_domain: bool, version: str):
+    raw = select(ComputerList).where(ComputerList.pc_name.like(f"{name}%"))
+    try:
+        results = session.scalars(raw).all()
+        for pc_obj in results:
+            pc_obj.in_domain = in_domain
+            pc_obj.version_os = version
+            session.commit()
+    except NoResultFound:
+        pass
+
+
 def insertOrUpdate(session: Session, item: SearchResult):
     """Добавляет или обновляет запись в базе данных."""
     try:

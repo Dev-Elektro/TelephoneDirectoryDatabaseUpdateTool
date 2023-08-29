@@ -56,6 +56,7 @@ def updateVersionPC(session: Session, name: str, in_domain: bool, version: str):
             pc_obj.in_domain = in_domain
             pc_obj.version_os = version
             session.commit()
+            session.flush()
     except NoResultFound:
         pass
 

@@ -1,3 +1,4 @@
+import logging
 import sys
 import time
 import signal
@@ -25,12 +26,29 @@ def updateDataBase(info: bool = False) -> int:
                 logger.info(f"Запись из AD № {ad.count}: {i}")
             insertOrUpdate(session, i)
 
-        logger.debug(f"Обновление версий ОС.")
-        for name in getAllPCList(session):
-            in_domain, version = ad.getComputerVersion(name)
-            updateVersionPC(session, name, in_domain, version)
-
         return ad.count
+
+
+def updateOS(info: bool = False) -> int:
+    with createDataBaseSession(config.db, echo=False)() as session:
+        ad = ActiveDirectory(config.ad.server, config.ad.search_tree, config.ad.user, config.ad.password)
+        res = ad.connect()
+        logger.debug(f"Подключение к Active Directory: {res}")
+
+        list_pc = getAllPCList(session)
+        for name in list_pc:
+            if not name:
+                continue
+            try:
+                in_domain, version = ad.getComputerVersion(name)
+            except Exception as err:
+                logger.debug(str(err))
+                continue
+            updateVersionPC(session, name, in_domain, version)
+            if info:
+                logger.info(f"Обновление ПК {name}: домен - {in_domain}, {version}")
+
+        return len(list_pc)
 
 
 if __name__ == '__main__':
@@ -42,7 +60,8 @@ if __name__ == '__main__':
 
     if len(sys.argv) == 1:
         try:
-            updateDataBase(info=True)
+            #updateDataBase(info=True)
+            updateOS(info=True)
         except KeyboardInterrupt:
             logger.info("Завершение работы.")
     else:
@@ -60,4 +79,7 @@ if __name__ == '__main__':
                 logger.info('Запущено обновление базы данных.')
                 count_entries = updateDataBase(info=False)
                 logger.info(f'Обработано {count_entries} записей.')
+                logger.info('Запущено обновление списка пк.')
+                count_pc = updateOS(info=False)
+                logger.info(f'Обновлено {count_pc} записей.')
             time.sleep(60)

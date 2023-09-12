@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
     if len(sys.argv) == 1:
         try:
-            #updateDataBase(info=True)
+            updateDataBase(info=True)
             updateOS(info=True)
         except KeyboardInterrupt:
             logger.info("Завершение работы.")

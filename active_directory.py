@@ -47,7 +47,35 @@ class ActiveDirectory:
         if self.conn.search(self.search_tree, query, SUBTREE, attributes=attributes):
             if len(self.conn.response) > 3:
                 entry = self.conn.response[0].get("attributes")
-                return True, f"{entry.get('operatingSystem')}: {entry.get('operatingSystemVersion')}"
+                version = entry.get('operatingSystemVersion')
+                ver_str = ''
+                if '19045' in version or '22621' in version:
+                    ver_str = '22H2 '
+                if '19044' in version or '22000' in version:
+                    ver_str = '21H2 '
+                if '19043' in version:
+                    ver_str = '21H1 '
+                if '19042' in version:
+                    ver_str = '20H2 '
+                if '19041' in version:
+                    ver_str = '2004 '
+                if '18363' in version:
+                    ver_str = '1909 '
+                if '18362' in version:
+                    ver_str = '1903 '
+                if '17763' in version:
+                    ver_str = '1809 '
+                if '17134' in version:
+                    ver_str = '1803 '
+                if '16299' in version:
+                    ver_str = '1709 '
+                if '15063' in version:
+                    ver_str = '1703 '
+                if '14393' in version:
+                    ver_str = '1607 '
+                if '10586' in version:
+                    ver_str = '1511 '
+                return True, f"{ver_str}{entry.get('operatingSystem')}: {entry.get('operatingSystemVersion')}"
         return False, ''
 
     def getAllData(self, sleep_sec: float = 0) -> Iterable[SearchResult]:
